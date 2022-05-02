@@ -94,11 +94,36 @@ window.onload = ()=>{
     ctx.closePath();
 };
 
-/* holds the framerate of game. Default is 10 fps 
+/* holds the framerate of game. Default is 10 fps */
 setInterval(()=>{
     //snake.clear();
     snake.draw();
     snake.update();
-    snake.tPosition.updateX();
-    snake.tPosition.updateY();
-}, 1000/10);*/
+    //snake.tPosition.updateX();
+    //snake.tPosition.updateY();
+}, 1000/10);
+
+document.addEventListener('keydown', (e)=>{
+    console.log(e.key);
+    switch(e.key){
+        case 'ArrowUp':
+            if(snake.direction == 'y'){break;}
+            snake.way = -1;
+            snake.direction = 'y';
+            break;
+        case 'ArrowDown':
+            if(snake.direction == 'y'){break;}
+            snake.way = 1;
+            snake.direction = 'y';
+            break;
+        case 'ArrowLeft':
+            if(snake.direction == 'x'){break;}
+            snake.way = -1;
+            snake.direction = 'x';
+            break;
+        case 'ArrowRight':
+            if(snake.direction == 'x'){break;}
+            snake.way = 1;
+            snake.direction = 'x';
+    }
+});
