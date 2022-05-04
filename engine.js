@@ -12,45 +12,29 @@ class Snake{
 
     direction = 'x'; // direction determines what axis snake's head is currently moving;
     way = 1; // way determines wheater the movement is left/down (1) or right/up (-1)
+    axisLength = 1;
 
     position = { // initial position and position tracker for player's head
         'x':350,
         'y':250
     }
 
-    tPosition = { // tracker for snake's tail
-        'updateX': ()=>{
-            /* if there is a point in front of the tail */
-            if(ctx.isPointInStroke(this.tPosition.x + 10, this.tPosition.y) && ctx.isPointInStroke(this.tPosition.x - 10, this.tPosition.y) == false){
-                this.tPosition.x += 10;
-                ctx.clearRect(this.tPosition.x - 10, this.tPosition.y - 1, 10, 2);
-            }
-            /* if there is a point behind the tail */
-            if(ctx.isPointInStroke(this.tPosition.x - 10, this.tPosition.y) && ctx.isPointInStroke(this.tPosition.x + 10, this.tPosition.y) == false){
-                this.tPosition.x -= 10;
-                ctx.clearRect(this.tPosition.x - 10, this.tPosition.y - 1, 10, 2);
-            }
-        },
-        'updateY': ()=>{
-            /* if there is a point below the tail */
-            if(ctx.isPointInStroke(this.tPosition.x, this.tPosition.y + 10) && ctx.isPointInStroke(this.tPosition.x, this.tPosition.y - 10) == false){
-                this.tPosition.y += 10;
-            }
-            /* if there is a point upwards the tail */
-            if(ctx.isPointInStroke(this.tPosition.x, this.tPosition.y - 10) && ctx.isPointInStroke(this.tPosition.x, this.tPosition.y + 10) == false){
-                this.tPosition.y -= 10;
-            }
-        },
-
-        'x': 230, // this is the position value minus the snake's size
-        'y': 250
+    /* these are mirrors for the direction and way properties.
+       They define the way in which a clearRect will be moving
+       to erase the tail of the snake */
+    eDirection = 'x';
+    eWay = 1;
+    ePosition = {
+        'x':200,
+        'y':250
     }
 
     /* an array of objects. Every time a valid button
        is pressed, a new entry is created and every bit
        of the snake is drawed based on these points.
-       Each object consists in the x, y, direction and way of drawing. */
+       Each object consists in the direction and way of drawing. */
     curves = new Array();
+    initCurveCount = 0;
 
     // *** METHODS ***
 
@@ -61,9 +45,19 @@ class Snake{
 
     /* clears the last piece of snake's body */
     clear(){
-        ctx.beginPath();
-        ctx.moveTo(this.tPosition.x, this.tPosition.y);
-
+        console.log(this.axisLength);
+        switch (this.eDirection) {
+            case 'x':
+                ctx.clearRect(this.ePosition.x, this.ePosition.y - (1 * this.eWay), 10, 2);
+                this.ePosition.x += 10 * this.eWay;
+                console.log('position x: ' + this.ePosition.x);
+                break;
+            case 'y':
+                ctx.clearRect(this.ePosition.x - (1 * this.eWay), this.ePosition.y, 2, 10);
+                this.ePosition.y += 10 * this.eWay;
+                console.log('position y: ' + this.ePosition.y);
+                break;
+        } // FINALLY SOME FUCKING PROGRESS
     }
 
     /* literally draws the snake's head */
@@ -81,9 +75,13 @@ class Snake{
         ctx.closePath();
     }
 
+    resetAxisLentgh(){
+        this.axisLength = 1;
+    }
+
 }
 
-var snake = new Snake(12);
+var snake = new Snake(15);
 
 window.onload = ()=>{
     ctx.beginPath();
@@ -96,7 +94,8 @@ window.onload = ()=>{
 
 /* holds the framerate of game. Default is 10 fps */
 setInterval(()=>{
-    //snake.clear();
+    snake.axisLength += 1;
+    snake.clear();
     snake.draw();
     snake.update();
     //snake.tPosition.updateX();
@@ -104,26 +103,29 @@ setInterval(()=>{
 }, 1000/10);
 
 document.addEventListener('keydown', (e)=>{
-    console.log(e.key);
     switch(e.key){
         case 'ArrowUp':
             if(snake.direction == 'y'){break;}
             snake.way = -1;
             snake.direction = 'y';
+            snake.resetAxisLentgh();
             break;
         case 'ArrowDown':
             if(snake.direction == 'y'){break;}
             snake.way = 1;
             snake.direction = 'y';
+            snake.resetAxisLentgh();
             break;
         case 'ArrowLeft':
             if(snake.direction == 'x'){break;}
             snake.way = -1;
             snake.direction = 'x';
+            snake.resetAxisLentgh();
             break;
         case 'ArrowRight':
             if(snake.direction == 'x'){break;}
             snake.way = 1;
             snake.direction = 'x';
+            snake.resetAxisLentgh();
     }
 });
