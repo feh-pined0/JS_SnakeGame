@@ -12,7 +12,7 @@ class Snake{
 
     direction = 'x'; // direction determines what axis snake's head is currently moving;
     way = 1; // way determines wheater the movement is left/down (1) or right/up (-1)
-    axisLength = 1;
+    axisLength = 15;
 
     position = { // initial position and position tracker for player's head
         'x':350,
@@ -46,16 +46,47 @@ class Snake{
     /* clears the last piece of snake's body */
     clear(){
         console.log(this.axisLength);
+        /* if a curve exists in the queue... */
+        if(this.curves[0] != undefined){
+            /* checks it's time to change direction and way */
+            if(this.curves[0].duration == 0){
+                this.eDirection = this.curves[0].direction;
+                this.eWay = this.curves[0].way;
+
+                /* if this happens, then unset the first curve object and re-arrange the others */
+                this.curves[0] = undefined;
+                this.curves = this.curves.filter(elem => {
+                    return elem !== undefined;
+                });
+            }
+            else{
+                /* if it's not time for a curve, count down the next one */
+                this.curves[0].duration -= 1;
+            }
+        }
         switch (this.eDirection) {
             case 'x':
-                ctx.clearRect(this.ePosition.x, this.ePosition.y - (1 * this.eWay), 10, 2);
-                this.ePosition.x += 10 * this.eWay;
-                console.log('position x: ' + this.ePosition.x);
+                /* quick fix for a bug: when using negative eWay, clearRect would draw with a wrong offset of 10 pixels */
+                if(this.eWay < 0){
+                    ctx.clearRect(this.ePosition.x - 10, this.ePosition.y - 1, 10, 2);
+                    this.ePosition.x += 10 * this.eWay;
+                }
+                /* if eWay is not negative, execute like normal */
+                else{
+                    ctx.clearRect(this.ePosition.x, this.ePosition.y - 1, 10, 2);
+                    this.ePosition.x += 10 * this.eWay;
+                }
                 break;
             case 'y':
-                ctx.clearRect(this.ePosition.x - (1 * this.eWay), this.ePosition.y, 2, 10);
-                this.ePosition.y += 10 * this.eWay;
-                console.log('position y: ' + this.ePosition.y);
+                /* same thing as before, but in the y axis */
+                if(this.eWay < 0){
+                    ctx.clearRect(this.ePosition.x - 1, this.ePosition.y - 10, 2, 10);
+                    this.ePosition.y += 10 * this.eWay;
+                }
+                else{
+                    ctx.clearRect(this.ePosition.x - 1, this.ePosition.y, 2, 10);
+                    this.ePosition.y += 10 * this.eWay;
+                }
                 break;
         } // FINALLY SOME FUCKING PROGRESS
     }
@@ -76,7 +107,8 @@ class Snake{
     }
 
     resetAxisLentgh(){
-        this.axisLength = 1;
+        this.curves.push({'direction':this.direction,'way':this.way,'duration':this.axisLength}); // creates new curve object in queue
+        this.axisLength = -1; // idk how this works, but it works ¯\_(ツ)_/¯
     }
 
 }
@@ -94,13 +126,14 @@ window.onload = ()=>{
 
 /* holds the framerate of game. Default is 10 fps */
 setInterval(()=>{
-    snake.axisLength += 1;
     snake.clear();
     snake.draw();
     snake.update();
-    //snake.tPosition.updateX();
-    //snake.tPosition.updateY();
-}, 1000/10);
+    snake.axisLength = snake.axisLength == snake.size ? snake.size : snake.axisLength + 1; // if axisLength equals size, stop increasing
+}, 1000/10); // 10 frames per second
+
+
+/* INPUTS AND CALLBACKS */
 
 document.addEventListener('keydown', (e)=>{
     switch(e.key){
