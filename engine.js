@@ -162,3 +162,5 @@ document.addEventListener('keydown', (e)=>{
             snake.resetAxisLentgh();
     }
 });
+
+alert('u are awesome');
